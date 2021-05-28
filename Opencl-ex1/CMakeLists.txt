@@ -25,9 +25,11 @@ if(MSVC)
 endif()
 
 # Add source to this project's executable.
+add_executable (Opencl-ex1 "try.cpp" ${CORE_SRC} ${OPENCL_SRC} )
 #add_executable (Opencl-ex1 "Opencl-ex1.cpp" ${CORE_SRC} ${OPENCL_SRC} )
 #add_executable (Opencl-ex1 "OpenCLExercise2_Mandelbrot.cpp" ${CORE_SRC} ${OPENCL_SRC} )
-add_executable (Opencl-ex1 "OpenCLExercise3_Sobel.cpp" ${CORE_SRC} ${OPENCL_SRC} )
+#add_executable (Opencl-ex1 "OpenCLExercise3_Sobel.cpp" ${CORE_SRC} ${OPENCL_SRC} )
+#add_executable (Opencl-ex1 "OpenCLExercise4_MatrixMultiplication.cpp" ${CORE_SRC} ${OPENCL_SRC} )
 
 target_include_directories (Opencl-ex1 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} "CORE" "OPENCL" "src")
 target_link_libraries (Opencl-ex1 ${OpenCL_LIBRARY} imagehlp )

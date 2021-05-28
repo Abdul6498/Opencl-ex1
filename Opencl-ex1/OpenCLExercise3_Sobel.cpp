@@ -89,7 +89,7 @@ int main(int argc, char** argv) {
 
 
 	// Create a kernel object
-	cl::Kernel mandelbrotKernel(program, "mandelbrotKernel");
+	cl::Kernel sobelKernel(program, "sobelKernel1");
 
 	// Declare some values
 	std::size_t wgSizeX = 16; // Number of work items per work group in X direction
@@ -107,12 +107,18 @@ int main(int argc, char** argv) {
 
 	// Allocate space for input and output data on the device
 	//TODO
+	cl::Buffer d_input(context, CL_MEM_READ_WRITE, size);
+	cl::Buffer d_output(context, CL_MEM_READ_WRITE, size);
 
 	// Initialize memory to 0xff (useful for debugging because otherwise GPU memory will contain information from last execution)
 	memset(h_input.data(), 255, size);
 	memset(h_outputCpu.data(), 255, size);
 	memset(h_outputGpu.data(), 255, size);
+
 	//TODO: GPU
+
+	queue.enqueueWriteBuffer(d_input, true, 0, size, h_input.data());
+	queue.enqueueWriteBuffer(d_output, true, 0, size, h_outputGpu.data());
 
 	//////// Load input data ////////////////////////////////
 	// Use random input data
@@ -124,7 +130,7 @@ int main(int argc, char** argv) {
 	{
 		std::vector<float> inputData;
 		std::size_t inputWidth, inputHeight;
-		Core::readImagePGM("Valve.pgm", inputData, inputWidth, inputHeight);
+		Core::readImagePGM("D:/INFOTECH/2nd Semester/High Performance Programming with graphic cards/Exercise/Opencl-ex1/Opencl-ex1/Valve.pgm", inputData, inputWidth, inputHeight);
 		for (size_t j = 0; j < countY; j++) {
 			for (size_t i = 0; i < countX; i++) {
 				h_input[i + countX * j] = inputData[(i % inputWidth) + inputWidth * (j % inputHeight)];
@@ -133,7 +139,9 @@ int main(int argc, char** argv) {
 	}
 
 	// Do calculation on the host side
+	Core::TimeSpan cpuStart = Core::getCurrentTime();
 	sobelHost(h_input, h_outputCpu, countX, countY);
+	Core::TimeSpan cpuEnd = Core::getCurrentTime();
 
 	//////// Store CPU output image ///////////////////////////////////
 	Core::writeImagePGM("output_sobel_cpu.pgm", h_outputCpu, countX, countY);
@@ -146,9 +154,11 @@ int main(int argc, char** argv) {
 		// Reinitialize output memory to 0xff
 		memset(h_outputGpu.data(), 255, size);
 		//TODO: GPU
+		queue.enqueueWriteBuffer(d_output, true, 0, size, h_outputGpu.data());
 
 		// Copy input data to device
 		//TODO
+		queue.enqueueWriteBuffer(d_input, true, 0, size, h_input.data());
 
 		// Create a kernel object
 		std::string kernelName = "sobelKernel" + boost::lexical_cast<std::string> (impl);
@@ -156,12 +166,26 @@ int main(int argc, char** argv) {
 
 		// Launch kernel on the device
 		//TODO
+		cl::Event kernel_exec_event = cl::Event();
+		sobelKernel.setArg<cl::Buffer>(0, d_input);
+		sobelKernel.setArg<cl::Buffer>(1, d_output);
+		queue.enqueueNDRangeKernel(sobelKernel, 0, cl::NDRange(countX, countY), cl::NDRange(wgSizeX, wgSizeY), NULL, &kernel_exec_event);
+		queue.finish();
 
 		// Copy output data back to host
 		//TODO
-
+		cl::Event download_event;
+		auto kernel_compute_time = OpenCL::getElapsedTime(kernel_exec_event);
+		queue.enqueueReadBuffer(d_output, true, 0, size, h_outputGpu.data(), NULL, &download_event);
+		auto download_time = OpenCL::getElapsedTime(download_event);
 		// Print performance data
 		//TODO
+		Core::TimeSpan cpuTime = cpuEnd - cpuStart;
+		std::cout << "CPU Time: " << cpuTime.toString() << std::endl;
+		std::cout << "GPU Time: " << kernel_compute_time.toString() << std::endl;
+		std::cout << "GPU Download: " << download_time.toString() << std::endl;
+		std::cout << "Speedup: " << cpuTime.getMilliseconds() / kernel_compute_time.getMilliseconds() << std::endl;
+		std::cout << "Speedup with overhead: " << cpuTime.getMilliseconds() / (kernel_compute_time + download_time).getMilliseconds() << std::endl;
 
 		//////// Store GPU output image ///////////////////////////////////
 		Core::writeImagePGM("output_sobel_gpu_" + boost::lexical_cast<std::string> (impl) + ".pgm", h_outputGpu, countX, countY);

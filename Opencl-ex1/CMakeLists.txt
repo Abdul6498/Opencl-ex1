@@ -25,7 +25,10 @@ if(MSVC)
 endif()
 
 # Add source to this project's executable.
-add_executable (Opencl-ex1 "try.cpp" ${CORE_SRC} ${OPENCL_SRC} )
+add_executable (Opencl-ex1 "sobel_practice.cpp" ${CORE_SRC} ${OPENCL_SRC} )
+#add_executable (Opencl-ex1 "__add.cpp" ${CORE_SRC} ${OPENCL_SRC} )
+#add_executable (Opencl-ex1 "try.cpp" ${CORE_SRC} ${OPENCL_SRC} )
+#add_executable (Opencl-ex1 "ex2_practice.cpp" ${CORE_SRC} ${OPENCL_SRC} )
 #add_executable (Opencl-ex1 "Opencl-ex1.cpp" ${CORE_SRC} ${OPENCL_SRC} )
 #add_executable (Opencl-ex1 "OpenCLExercise2_Mandelbrot.cpp" ${CORE_SRC} ${OPENCL_SRC} )
 #add_executable (Opencl-ex1 "OpenCLExercise3_Sobel.cpp" ${CORE_SRC} ${OPENCL_SRC} )

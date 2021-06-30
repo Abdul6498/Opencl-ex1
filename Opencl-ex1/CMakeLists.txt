@@ -2,11 +2,12 @@
 # project specific logic here.
 #
 cmake_minimum_required (VERSION 3.8)
-
 #Adding Opencl libs and include files to the proj
 find_package(OpenCL)
 include_directories(${OpenCL_INCLUDE_DIRS})
 link_directories(${OpenCL_LIBRARY})
+
+#Opencv
 
 #adding the Boost libs to the proj
 set(BOOST_INC "C:/local/boost_1_76_0_b1_rc2")
@@ -25,7 +26,11 @@ if(MSVC)
 endif()
 
 # Add source to this project's executable.
-add_executable (Opencl-ex1 "sobel_practice.cpp" ${CORE_SRC} ${OPENCL_SRC} )
+#add_executable (Opencl-ex1 "OpenCLExercise6_VolumeRendering" ${CORE_SRC} ${OPENCL_SRC} )
+#add_executable (Opencl-ex1 "OpenCLExercise6_PrefixSum" ${CORE_SRC} ${OPENCL_SRC} )
+#add_executable (Opencl-ex1 "mat_mul_practice.cpp" ${CORE_SRC} ${OPENCL_SRC} )
+#add_executable (Opencl-ex1 "sobel_practice.cpp" ${CORE_SRC} ${OPENCL_SRC} )
+add_executable (Opencl-ex1 "Lab_project.cpp" ${CORE_SRC} ${OPENCL_SRC} )
 #add_executable (Opencl-ex1 "__add.cpp" ${CORE_SRC} ${OPENCL_SRC} )
 #add_executable (Opencl-ex1 "try.cpp" ${CORE_SRC} ${OPENCL_SRC} )
 #add_executable (Opencl-ex1 "ex2_practice.cpp" ${CORE_SRC} ${OPENCL_SRC} )
@@ -35,6 +40,6 @@ add_executable (Opencl-ex1 "sobel_practice.cpp" ${CORE_SRC} ${OPENCL_SRC} )
 #add_executable (Opencl-ex1 "OpenCLExercise4_MatrixMultiplication.cpp" ${CORE_SRC} ${OPENCL_SRC} )
 
 target_include_directories (Opencl-ex1 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} "CORE" "OPENCL" "src")
-target_link_libraries (Opencl-ex1 ${OpenCL_LIBRARY} imagehlp )
+target_link_libraries (Opencl-ex1 ${OpenCL_LIBRARY} imagehlp)
 
 # TODO: Add tests and install targets if needed.

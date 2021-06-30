@@ -38,10 +38,9 @@ void sobelHost(const std::vector<float>& h_input, std::vector<float>& h_outputCp
 	}
 }
 
-int main()
+int main(int argc, char** argv)
 {
 	std::cout << "Author: Abdul Rehman" << std::endl;
-
 	std::vector<cl::Platform> platforms;
 	cl::Platform::get(&platforms);
 	if (platforms.size() == 0) {
@@ -50,7 +49,7 @@ int main()
 	}
 	int platformId = 0;
 	for (size_t i = 0; i < platforms.size(); i++) {
-		if (platforms[i].getInfo<CL_PLATFORM_NAME>() == "Nvidia Accelerated Parallel Processing") {
+		if (platforms[i].getInfo<CL_PLATFORM_NAME>() == "NVIDIA Accelerated Parallel Processing") {
 			platformId = i;
 			break;
 		}
@@ -59,12 +58,17 @@ int main()
 	std::cout << "Using platform '" << platforms[platformId].getInfo<CL_PLATFORM_NAME>() << "' from '" << platforms[platformId].getInfo<CL_PLATFORM_VENDOR>() << "'" << std::endl;
 	cl::Context context(CL_DEVICE_TYPE_GPU, prop);
 
-	// Get the first device of the context
-	std::cout << "Context has " << context.getInfo<CL_CONTEXT_DEVICES>().size() << " devices" << std::endl;
-	cl::Device device = context.getInfo<CL_CONTEXT_DEVICES>()[0];
+
+	// Get a device of the context
+	int deviceNr = argc < 2 ? 1 : atoi(argv[1]);
+	std::cout << "Using device " << deviceNr << " / " << context.getInfo<CL_CONTEXT_DEVICES>().size() << std::endl;
+	ASSERT(deviceNr > 0);
+	ASSERT((size_t)deviceNr <= context.getInfo<CL_CONTEXT_DEVICES>().size());
+	cl::Device device = context.getInfo<CL_CONTEXT_DEVICES>()[deviceNr - 1];
 	std::vector<cl::Device> devices;
 	devices.push_back(device);
 	OpenCL::printDeviceInfo(std::cout, device);
+
 
 	// Create a command queue
 	cl::CommandQueue queue(context, device, CL_QUEUE_PROFILING_ENABLE);
